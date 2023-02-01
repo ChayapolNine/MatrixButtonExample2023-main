@@ -72,7 +72,7 @@ uint16_t ButtonMatrix=0;
 int check = 0;
 static uint16_t numberhit = 0;
 static uint16_t ButtonMatixtemp=0;
-static int press=0;
+static long long int press=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,7 +82,9 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 int checkbuttonhit(uint16_t number);
 void ReadMatrixButton_1Row();
-int numpad(int hit);
+int concat(int x, int y);
+int backspace(int x);
+long long int numpad(int hit);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -137,13 +139,15 @@ int main(void)
 	  {
 		  timestamp =HAL_GetTick() + 10;
 		  ReadMatrixButton_1Row();
+		if(ButtonMatrix == 0){
+			ButtonMatixtemp = 0;
+		}
 		if(ButtonMatixtemp != ButtonMatrix && ButtonMatrix != 0){
 			check += 1;
 			numberhit = checkbuttonhit(ButtonMatrix);
 			press = numpad(numberhit);
 			ButtonMatixtemp = ButtonMatrix;
 		}
-
 	  }
   }
   /* USER CODE END 3 */
@@ -350,57 +354,68 @@ int checkbuttonhit(uint16_t number){
 
 	return count;
 }
-int numpad(int hit){
-	int numpadcheck = 0;
+int backspace(int x) {
+    return x / 10;
+}
+long long int numpad(int hit){
+	static long long int numpadcheck = 0;
 	switch (hit) {
 			case 0:
 				printf("You entered 7\n");
-				numpadcheck = 7;
+				numpadcheck = concat(numpadcheck,7);
 				break;
 	        case 1:
 	            printf("You entered 4\n");
-	            numpadcheck = 4;
+	            numpadcheck = concat(numpadcheck,4);
 	            break;
 	        case 2:
 	            printf("You entered 1\n");
-	            numpadcheck = 1;
+	            numpadcheck = concat(numpadcheck,1);
 	            break;
 	        case 3:
 	            printf("You entered 0\n");
-	            numpadcheck = 0;
+	            numpadcheck = concat(numpadcheck,0);
 	            break;
 	        case 4:
 	            printf("You entered 8\n");
-	            numpadcheck = 8;
+	            numpadcheck = concat(numpadcheck,8);
 	            break;
 	        case 5:
 	            printf("You entered 5\n");
-	            numpadcheck = 5;
+	            numpadcheck = concat(numpadcheck,5);
 	            break;
 	        case 6:
 	            printf("You entered 2\n");
-	            numpadcheck = 2;
+	            numpadcheck = concat(numpadcheck,2);
 	            break;
 	        case 8:
 	            printf("You entered 9\n");
-	            numpadcheck = 9;
+	            numpadcheck = concat(numpadcheck,9);
 	            break;
 	        case 9:
 	            printf("You entered 6\n");
-	            numpadcheck = 6;
+	            numpadcheck = concat(numpadcheck,6);
 	            break;
 	        case 10:
 	            printf("You entered 3\n");
-	            numpadcheck = 3;
+	            numpadcheck = concat(numpadcheck,3);
 	            break;
 	        case 12:
 	            printf("You entered clear\n");
+	            numpadcheck = 0;
 	            break;
 	        case 13:
 	            printf("You entered backspace\n");
+	            numpadcheck = backspace(numpadcheck);
 	            break;
 	        case 15:
 	            printf("You entered ok\n");
+	    		if(press == 4210957867){
+	    			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	    		}
+	    		else{
+	    			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	    		}
 	            break;
 	        default:
 	            printf("Invalid input\n");
